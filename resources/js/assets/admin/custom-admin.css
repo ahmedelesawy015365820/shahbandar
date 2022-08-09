@@ -1,0 +1,17 @@
+.vue-notification {
+    text-align: center;
+    font-size: 14px;
+    padding: 15px;
+    margin: 40px 5px 5px;
+    color: white;
+    border-left: 5px solid #187FE7;
+}
+
+.vue-notification i{
+    font-size: 16px;
+    margin: 0 10px;
+}
+
+.page-wrapper > .content {
+    padding: 1.875rem 1.875rem !important;
+}
