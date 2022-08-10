@@ -6,14 +6,14 @@
             <div class="page-header">
                 <div class="row align-items-center">
                     <div class="col">
-                        <h3 class="page-title">Jobs</h3>
+                        <h3 class="page-title">الموردين</h3>
                         <ul class="breadcrumb">
                             <li class="breadcrumb-item">
                                 <router-link :to="{name: 'dashboard'}">
-                                    Dashboard
+                                    الرئيسية
                                 </router-link>
                             </li>
-                            <li class="breadcrumb-item active">Jobs</li>
+                            <li class="breadcrumb-item active">الموردين</li>
                         </ul>
                     </div>
 
@@ -29,15 +29,15 @@
                             <div class="card-header pt-0">
                                 <div class="row justify-content-between">
                                     <div class="col-5">
-                                        Search:
+                                        بحث :
                                         <input type="search" v-model="search" class="custom"/>
                                     </div>
                                     <div class="col-5 row justify-content-end">
                                         <router-link
-                                            :to="{name: 'createJob', params: {lang: locale || 'ar'}}"
-                                            v-if="permission.includes('job create')"
+                                            v-if="permission.includes('department create')"
+                                           :to="{name: 'createSupplier'}"
                                             class="btn btn-custom btn-warning">
-                                            Add
+                                            اضافه
                                         </router-link>
                                     </div>
                                 </div>
@@ -47,34 +47,33 @@
                                     <thead>
                                     <tr>
                                         <th>#</th>
-                                        <th>Name</th>
-                                        <th>Status</th>
-                                        <th>IsSalesTeam</th>
-                                        <th>Action</th>
+                                        <th>اسم المورد</th>
+                                        <th>رقم تليفون</th>
+                                        <th>الحالة</th>
+                                        <th>الاجراءات</th>
                                     </tr>
                                     </thead>
-                                    <tbody v-if="jobs.length">
-                                    <tr v-for="(item,index) in jobs" :key="item.id">
+                                    <tbody v-if="suppliers.length">
+                                    <tr v-for="(item,index) in suppliers"  :key="item.id">
                                         <td>{{ index + 1 }}</td>
-                                        <td>{{ item.name }}</td>
-                                        <td>{{parseInt(item.Allow_adding_to_sales_team) ? 'global.Yeas' : 'global.No'}}</td>
+                                        <td>{{ item.name_supplier }}</td>
+                                        <td>{{ item.phone_supplier }}</td>
                                         <td>
-                                            <a href="#" @click="activationJob(item.id,item.name,item.active,index)">
-                                                <span :class="[parseInt(item.active) ? 'text-success hover': 'text-danger hover']">{{
-                                                        parseInt(item.active) ? 'global.Active' : 'global.Inactive'
-                                                    }}</span>
+                                            <a href="#" @click="activationSupplier(item.id,item.status,index)">
+                                                <span :class="[parseInt(item.status) ? 'text-success hover': 'text-danger hover']">{{
+                                                        parseInt(item.status) ? 'تفعيل' : 'ايقاف تفعيل' }}</span>
                                             </a>
                                         </td>
                                         <td>
 
                                             <router-link
-                                                :to="{name: 'editJob', params: {lang: locale || 'ar',id:item.id}}"
-                                                v-if="permission.includes('job edit')"
-                                                class="btn btn-sm btn-success me-2">
+                                                :to="{name: 'editSupplier',params:{id:item.id}}"
+                                               v-if="permission.includes('department edit')"
+                                               class="btn btn-sm btn-success me-2">
                                                 <i class="far fa-edit"></i>
                                             </router-link>
-                                            <a href="#" @click="deleteJob(item.id,item.name,index)"
-                                               v-if="permission.includes('job delete')"
+                                            <a href="#" @click="deleteSupplier(item.id,index)"
+                                                v-if="permission.includes('department delete')"
                                                data-bs-target="#staticBackdrop" class="btn btn-sm btn-danger me-2">
                                                 <i class="far fa-trash-alt"></i>
                                             </a>
@@ -84,7 +83,7 @@
                                     </tbody>
                                     <tbody v-else>
                                         <tr>
-                                             <th class="text-center" colspan="7">NoDataFound</th>
+                                            <th class="text-center" colspan="5">لا يوجد بيانات</th>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -95,7 +94,7 @@
             </div>
             <!-- /Table -->
             <!-- start Pagination -->
-            <Pagination :data="jobsPaginate" @pagination-change-page="getJob">
+            <Pagination :data="suppliersPaginate" @pagination-change-page="getSupplier">
                 <template #prev-nav>
                     <span>&lt; Previous</span>
                 </template>
@@ -119,22 +118,23 @@ export default {
     setup() {
         const emitter = inject('emitter');
 
-        let jobs = ref([]);
-        let jobsPaginate = ref({});
+        // get packages
+        let suppliers = ref([]);
+        let suppliersPaginate = ref({});
         let loading = ref(false);
         const search = ref('');
         let store = useStore();
 
         let permission = computed(() => store.getters['authAdmin/permission']);
 
-        let getJob = (page = 1) => {
+        let getSupplier = (page = 1) => {
             loading.value = true;
 
-            adminApi.get(`/v1/dashboard/job?page=${page}&search=${search.value}`)
+            adminApi.get(`/v1/dashboard/supplier?page=${page}&search=${search.value}`)
                 .then((res) => {
                     let l = res.data.data;
-                    jobsPaginate.value = l.jobs;
-                    jobs.value = l.jobs.data;
+                    suppliersPaginate.value = l.suppliers;
+                    suppliers.value = l.suppliers.data;
                 })
                 .catch((err) => {
                     console.log(err.response.data);
@@ -145,24 +145,24 @@ export default {
         }
 
         onMounted(() => {
-            getJob();
+            getSupplier();
         });
 
         emitter.on('get_lang', () => {
-            getJob(search.value);
+            getSupplier(search.value);
         });
 
         watch(search, (search, prevSearch) => {
             if (search.length >= 0) {
-                getJob();
+                getSupplier();
             }
         });
 
 
-        function deleteJob(id, jobName, index) {
+        function deleteSupplier(id, index) {
             Swal.fire({
-                title: `global.AreYouSureDelete (${jobName})`,
-                text: `global.YouWontBeAbleToRevertThis`,
+                title: `هل تريد هذف هذا العنصر ؟ `,
+                text: `لن تتمكن من التراجع عن هذا`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
@@ -171,13 +171,13 @@ export default {
             }).then((result) => {
                 if (result.isConfirmed) {
 
-                    adminApi.delete(`/v1/dashboard/job/${id}`)
+                    adminApi.delete(`/v1/dashboard/supplier/${id}`)
                         .then((res) => {
-                            jobs.value.splice(index, index + 1);
+                            suppliers.value.splice(index, index + 1);
 
                             Swal.fire({
                                 icon: 'success',
-                                title: `global.DeletedSuccessfully`,
+                                title: `تم الحذف بنجاح`,
                                 showConfirmButton: false,
                                 timer: 1500
                             });
@@ -185,18 +185,18 @@ export default {
                         .catch((err) => {
                             Swal.fire({
                                 icon: 'error',
-                                title: `global.ThereIsAnErrorInTheSystem`,
-                                text: `global.YouCanNotDelete`,
+                                title: `يوجد خطا`,
+                                text: `يوجد خطا في النظام!`,
                             });
                         });
                 }
             });
         }
 
-        function activationJob(id, jobName, active,index) {
+        function activationSupplier(id, active,index) {
             Swal.fire({
-                title: `${active ? 'global.AreYouSureInactive' : 'global.AreYouSureActive'}  (${jobName})`,
-                text: `global.YouWontBeAbleToRevertThis`,
+                title: `${active ? 'هل انت متاكد من ايقاف التفعيل ؟' : 'هل انت متاكد من التفعيل  ؟'} `,
+                text: `لم تتمكن من التراجع عن هذا`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
@@ -205,28 +205,28 @@ export default {
             }).then((result) => {
                 if (result.isConfirmed) {
 
-                    adminApi.get(`/v1/dashboard/activationJob/${id}`)
+                    adminApi.get(`/v1/dashboard/activationSupplier/${id}`)
                         .then((res) => {
                             Swal.fire({
                                 icon: 'success',
-                                title: `${active ? 'global.InactiveSuccessfully' :'global.ActiveSuccessfully'}`,
+                                title: `${active ? 'تم التفعيل بنجاح' :'تم ايقاف التفعيل بنجاح'}`,
                                 showConfirmButton: false,
                                 timer: 1500
                             });
-                            jobs.value[index]['active'] =  active ? 0:1
+                            suppliers.value[index]['status'] =  active ? 0:1
                         })
                         .catch((err) => {
                             Swal.fire({
                                 icon: 'error',
-                                title: `'global.ThereIsAnErrorInTheSystem'`,
-                                text: `global.YouCanNotModifyThisSafe`,
+                                title: `يوجد خطا`,
+                                text: `يوجد خطا في النظام!`,
                             });
                         });
                 }
             });
         }
 
-        return {jobs, loading, getJob, search, deleteJob, activationJob,permission, jobsPaginate};
+        return {suppliers, loading,permission, getSupplier, search, deleteSupplier, activationSupplier, suppliersPaginate};
 
     },
     data() {

@@ -7,7 +7,21 @@
                     <li :class="[$route.name == 'dashboard'? 'active': '']">
                         <router-link :to="{name:'dashboard'}" >
                             <i class="fa fa-home" aria-hidden="true"></i>
-                            <span></span>
+                            <span>الرئيسية</span>
+                        </router-link>
+                    </li>
+
+                    <li :class="[$route.name == 'indexSupplier'? 'active': '']">
+                        <router-link :to="{name:'indexSupplier'}" >
+                            <i class="fa fa-home" aria-hidden="true"></i>
+                            <span>الموردين</span>
+                        </router-link>
+                    </li>
+
+                    <li :class="[$route.name == 'indexCategory'? 'active': '']">
+                        <router-link :to="{name:'indexCategory'}" >
+                            <i class="fa fa-home" aria-hidden="true"></i>
+                            <span>الفئات</span>
                         </router-link>
                     </li>
 

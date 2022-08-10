@@ -82,7 +82,7 @@ const actions = {
 
         commit('editLoading',true);
 
-        adminApi.post(`/v1/auth/logout`)
+        adminApi.post(`/v1/dashboard/logout`)
             .then((res) => {
                 commit('logoutToken');
                 let locale = localStorage.getItem("langAdmin");

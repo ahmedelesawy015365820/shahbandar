@@ -67,6 +67,14 @@ use Illuminate\Support\Facades\Route;
              Route::get('role','EmployeeController@role');
              Route::get('salesEmployee','EmployeeController@salesEmployee');
 
+             // supplier
+             Route::resource('supplier','SupplierController')->except(['show']);
+             Route::get('activationSupplier/{id}','SupplierController@activationSupplier');
+
+             // category
+             Route::resource('category','CategoryController')->except(['show']);
+             Route::get('activationCategory/{id}','CategoryController@activationCategory');
+
              //start logout
 
              Route::post('logout','AuthDashboardController@logout');
