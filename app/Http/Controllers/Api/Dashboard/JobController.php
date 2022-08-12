@@ -52,7 +52,7 @@ class JobController extends Controller
     public function index(Request $request)
     {
         $jobs = Job::when($request->search, function ($q) use ($request) {
-            return $q->whereRelation('translations', 'name', 'like', '%' . $request->search . '%');
+            return $q->where('name', 'like', '%' . $request->search . '%');
         })->latest()->paginate(5);
 
         return $this->sendResponse(['jobs' => $jobs], 'Data exited successfully');
@@ -71,14 +71,13 @@ class JobController extends Controller
 
             // Validator request
             $v = Validator::make($request->all(), [
-                'ar.name' => ['required', Rule::unique('job_translations', 'name')],
-                'en.name' => ['required', Rule::unique('job_translations', 'name')],
+                'name' => 'required|unique:departments,name',
             ]);
 
             if ($v->fails()) {
                 return $this->sendError('There is an error in the data', $v->errors());
             }
-            $data = $request->only(['ar','en','Allow_adding_to_sales_team']);
+            $data = $request->only(['name','Allow_adding_to_sales_team']);
 
             Job::create($data);
 
@@ -97,7 +96,7 @@ class JobController extends Controller
     {
         try {
 
-            $job = Job::find($id)->makeVisible('translations');
+            $job = Job::find($id);
 
             return $this->sendResponse(['job' => $job], 'Data exited successfully');
 
@@ -135,15 +134,14 @@ class JobController extends Controller
 
             // Validator request
             $v = Validator::make($request->all(), [
-                'ar.name' => ['required', Rule::unique('job_translations', 'name')->whereNot('job_id', $job->id)],
-                'en.name' => ['required', Rule::unique('job_translations', 'name')->whereNot('job_id', $job->id)],
+                'name' => 'required|unique:departments,name,'.$job->id,
             ]);
 
             if ($v->fails()) {
                 return $this->sendError('There is an error in the data', $v->errors());
             }
 
-            $data = $request->only(['ar','en','Allow_adding_to_sales_team']);
+            $data = $request->only(['name','Allow_adding_to_sales_team']);
 
             $job->update($data);
 

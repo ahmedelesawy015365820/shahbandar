@@ -52,7 +52,7 @@ class DepartmentController extends Controller
     public function index(Request $request)
     {
         $departments = Department::when($request->search, function ($q) use ($request) {
-            return $q->whereRelation('translations', 'name', 'like', '%' . $request->search . '%');
+            return $q->where('name', 'like', '%' . $request->search . '%');
         })->latest()->paginate(5);
 
         return $this->sendResponse(['departments' => $departments], 'Data exited successfully');
@@ -71,14 +71,13 @@ class DepartmentController extends Controller
 
             // Validator request
             $v = Validator::make($request->all(), [
-                'ar.name' => ['required', Rule::unique('department_translations', 'name')],
-                'en.name' => ['required', Rule::unique('department_translations', 'name')],
+                'name' => 'required|unique:departments,name',
             ]);
 
             if ($v->fails()) {
                 return $this->sendError('There is an error in the data', $v->errors());
             }
-            $data = $request->only(['ar','en']);
+            $data = $request->only(['name']);
 
             Department::create($data);
 
@@ -97,7 +96,7 @@ class DepartmentController extends Controller
     {
         try {
 
-            $department = Department::find($id)->makeVisible('translations');
+            $department = Department::find($id);
 
             return $this->sendResponse(['department' => $department], 'Data exited successfully');
 
@@ -135,15 +134,14 @@ class DepartmentController extends Controller
 
             // Validator request
             $v = Validator::make($request->all(), [
-                'ar.name' => ['required', Rule::unique('department_translations', 'name')->whereNot('department_id', $department->id)],
-                'en.name' => ['required', Rule::unique('department_translations', 'name')->whereNot('department_id', $department->id)],
+                'name' => 'required|unique:departments,name,'.$department->id,
             ]);
 
             if ($v->fails()) {
                 return $this->sendError('There is an error in the data', $v->errors());
             }
 
-            $data = $request->only(['ar','en']);
+            $data = $request->only(['name']);
 
             $department->update($data);
 
