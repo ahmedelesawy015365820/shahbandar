@@ -3,16 +3,15 @@
 namespace App\Http\Controllers\Api\Dashboard;
 
 use App\Http\Controllers\Controller;
-use App\Models\Category;
+use App\Models\Company;
 use App\Traits\Message;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 
-class CategoryController extends Controller
+class CompanyController extends Controller
 {
-
     use Message;
 
     /**
@@ -22,26 +21,26 @@ class CategoryController extends Controller
      */
     public function index(Request $request)
     {
-        $categories = Category::with('media:file_name,mediable_id')
+        $categories = Company::with('media:file_name,mediable_id')
             ->when($request->search, function ($q) use ($request) {
-            return $q->where('name', 'like', '%' . $request->search . '%');
-        })->latest()->paginate(10);
+                return $q->where('name', 'like', '%' . $request->search . '%');
+            })->latest()->paginate(10);
 
         return $this->sendResponse(['categories' => $categories], 'Data exited successfully');
     }
 
 
-    public function activationCategory($id)
+    public function activationCompany($id)
     {
-        $department = Category::find($id);
+        $company = Company::find($id);
 
-        if ($department->status == 1)
+        if ($company->status == 1)
         {
-            $department->update([
+            $company->update([
                 "status" => 0
             ]);
         }else{
-            $department->update([
+            $company->update([
                 "status" => 1
             ]);
         }
@@ -62,7 +61,7 @@ class CategoryController extends Controller
 
             // Validator request
             $v = Validator::make($request->all(), [
-                'name' => ['required'],
+                'name' => ['required','string'],
                 'file' => 'required|file|mimes:png,jpg,jpeg',
             ]);
 
@@ -71,7 +70,7 @@ class CategoryController extends Controller
             }
             $data = $request->only(['name']);
 
-            $category = Category::create($data);
+            $company = Company::create($data);
 
             if($request->hasFile('file')){
 
@@ -80,9 +79,9 @@ class CategoryController extends Controller
                 $image = time().'.'. $request->file->getClientOriginalName();
 
                 // picture move
-                $request->file->storeAs('category', $image,'general');
+                $request->file->storeAs('company', $image,'general');
 
-                $category->media()->create([
+                $company->media()->create([
                     'file_name' => $image ,
                     'file_size' => $file_size,
                     'file_type' => $file_type,
@@ -112,9 +111,9 @@ class CategoryController extends Controller
     {
         try {
 
-            $category = Category::with('media:file_name,mediable_id')->find($id);
+            $company = Company::with('media:file_name,mediable_id')->find($id);
 
-            return $this->sendResponse(['category' => $category], 'Data exited successfully');
+            return $this->sendResponse(['company' => $company], 'Data exited successfully');
 
         } catch (\Exception $e) {
 
@@ -135,7 +134,7 @@ class CategoryController extends Controller
         DB::beginTransaction();
         try {
 
-            $category = Category::find($id);
+            $company = Company::find($id);
 
             // Validator request
             $v = Validator::make($request->all(), [
@@ -149,23 +148,23 @@ class CategoryController extends Controller
 
             $data = $request->only(['name','status']);
 
-            $category->update($data);
+            $company->update($data);
 
             if($request->hasFile('file')){
 
-                if(File::exists('upload/category/'.$category->media->file_name)){
-                    unlink('upload/category/'. $category->media->file_name);
+                if(File::exists('upload/company/'.$company->media->file_name)){
+                    unlink('upload/company/'. $company->media->file_name);
                 }
-                $category->media->delete();
+                $company->media->delete();
 
                 $file_size = $request->file->getSize();
                 $file_type = $request->file->getMimeType();
                 $image = time().'.'. $request->file->getClientOriginalName();
 
                 // picture move
-                $request->file->storeAs('category', $image,'general');
+                $request->file->storeAs('company', $image,'general');
 
-                $category->media()->create([
+                $company->media()->create([
                     'file_name' => $image ,
                     'file_size' => $file_size,
                     'file_type' => $file_type,
@@ -192,15 +191,15 @@ class CategoryController extends Controller
     public function destroy($id)
     {
         try {
-            $category = Category::find($id);
-            if ($category){
+            $company = Company::find($id);
+            if ($company){
 
-                if(File::exists('upload/category/'.$category->media->file_name)){
-                    unlink('upload/category/'. $category->media->file_name);
+                if(File::exists('upload/company/'.$company->media->file_name)){
+                    unlink('upload/company/'. $company->media->file_name);
                 }
-                $category->media->delete();
+                $company->media->delete();
 
-                $category->delete();
+                $company->delete();
                 return $this->sendResponse([],'Deleted successfully');
             }else{
                 return $this->sendError('ID is not exist');

@@ -11,7 +11,7 @@
                         </router-link>
                     </li>
 
-                    <li :class="[$route.name == 'indexSupplier'? 'active': '']">
+                    <li :class="[$route.name == 'supplier'? 'active': '']">
                         <router-link :to="{name:'indexSupplier'}" >
                             <i class="fa fa-home" aria-hidden="true"></i>
                             <span>الموردين</span>
@@ -25,6 +25,26 @@
                         </router-link>
                     </li>
 
+                    <li :class="[$route.name == 'indexCompany'? 'active': '']">
+                        <router-link :to="{name:'indexCompany'}" >
+                            <i class="fa fa-home" aria-hidden="true"></i>
+                            <span>الشركات</span>
+                        </router-link>
+                    </li>
+
+                    <li :class="[$route.name == 'indexDiscount'? 'active': '']">
+                        <router-link :to="{name:'indexDiscount'}" >
+                            <i class="fa fa-home" aria-hidden="true"></i>
+                            <span>الخصومات</span>
+                        </router-link>
+                    </li>
+
+                    <li :class="[$route.name == 'indexMeasure'? 'active': '']">
+                        <router-link :to="{name:'indexMeasure'}" >
+                            <i class="fa fa-home" aria-hidden="true"></i>
+                            <span>وحدات القياس</span>
+                        </router-link>
+                    </li>
 
                     <li class="submenu" v-if="permission.includes('management')">
                         <a href="#" ><i class="fas fa-suitcase"></i> <span>Management</span> <span :class="['menu-arrow','menu-arrow-ar']"></span></a>

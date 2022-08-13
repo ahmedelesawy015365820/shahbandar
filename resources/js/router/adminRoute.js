@@ -3,9 +3,12 @@ import Index from '../view/admin/Dashboard.vue';
 import department from './adminRoute/department';
 import supplier from './adminRoute/supplier';
 import category from './adminRoute/category';
+import company from './adminRoute/company';
 import job from './adminRoute/job';
 import role from './adminRoute/role';
 import employee from './adminRoute/employee';
+import measure from './adminRoute/measure';
+import discount from './adminRoute/discount';
 import notification from '../view/admin/notifications';
 import Page404 from '../view/admin/Page404.vue';
 import middlewarePipeline from "./middlewarePipeline";
@@ -77,7 +80,10 @@ const routes = [
             ...employee,
             ...role,
             ...supplier,
-            ...category
+            ...category,
+            ...company,
+            ...measure,
+            ...discount
         ]
     },
     {

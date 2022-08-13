@@ -75,6 +75,18 @@ use Illuminate\Support\Facades\Route;
              Route::resource('category','CategoryController')->except(['show']);
              Route::get('activationCategory/{id}','CategoryController@activationCategory');
 
+             // company
+             Route::resource('company','CompanyController')->except(['show']);
+             Route::get('activationCompany/{id}','CompanyController@activationCompany');
+
+             // measure
+             Route::resource('measure','MeasurementUnitController')->except(['show']);
+             Route::get('activationMeausre/{id}','MeasurementUnitController@activationMeausre');
+
+             // discount
+             Route::resource('discount','DiscountController')->except(['show']);
+             Route::get('activationDiscount/{id}','DiscountController@activationDiscount');
+
              //start logout
 
              Route::post('logout','AuthDashboardController@logout');

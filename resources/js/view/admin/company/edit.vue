@@ -9,10 +9,10 @@
             <div class="page-header">
                 <div class="row align-items-center">
                     <div class="col">
-                        <h3 class="page-title">الموردين</h3>
+                        <h3 class="page-title">الشركات</h3>
                         <ul class="breadcrumb">
-                            <li class="breadcrumb-item"><router-link :to="{name: 'indexCategory'}">الموريد</router-link></li>
-                            <li class="breadcrumb-item active">تعديل مورد</li>
+                            <li class="breadcrumb-item"><router-link :to="{name: 'indexCompany'}">الشركات</router-link></li>
+                            <li class="breadcrumb-item active">تعديل الشركه</li>
                         </ul>
                     </div>
                 </div>
@@ -26,7 +26,7 @@
                         <div class="card-body">
                             <div class="card-header pt-0 mb-4">
                                 <router-link
-                                    :to="{name: 'indexCategory'}"
+                                    :to="{name: 'indexCompany'}"
                                     class="btn btn-custom btn-dark"
                                 >
                                     العوده للخلف
@@ -38,11 +38,11 @@
                                         <div class="form-row row">
 
                                             <div class="col-md-6 mb-3">
-                                                <label for="validationCustom01">اسم الفئه</label>
+                                                <label for="validationCustom01">اسم الشركه</label>
                                                 <input type="text" class="form-control"
                                                        v-model.trim="v$.name.$model"
                                                        id="validationCustom01"
-                                                       placeholder="اسم الفئه"
+                                                       placeholder="اسم الشركه"
                                                        :class="{'is-invalid':v$.name.$error,'is-valid':!v$.name.$invalid}"
                                                 >
                                                 <div class="valid-feedback">تبدو جيده</div>
@@ -73,7 +73,7 @@
                                                 <div class="container-images" v-show="!numberOfImage">
                                                     <figure>
                                                         <figcaption v-if="image">
-                                                            <img :src="`/upload/category/${image}`">
+                                                            <img :src="`/upload/company/${image}`">
                                                         </figcaption>
                                                     </figure>
                                                 </div>
@@ -117,15 +117,15 @@ export default {
         let loading = ref(false);
         let image = ref('');
 
-        let getCategory = () => {
+        let getCompany = () => {
             loading.value = true;
 
-            adminApi.get(`/v1/dashboard/category/${id.value}/edit`)
+            adminApi.get(`/v1/dashboard/company/${id.value}/edit`)
                 .then((res) => {
                     let l = res.data.data;
 
-                    addCategory.data.name = l.category.name;
-                    image.value = l.category.media.file_name;
+                    addCompany.data.name = l.company.name;
+                    image.value = l.company.media.file_name;
                 })
                 .catch((err) => {
                     console.log(err.response);
@@ -136,11 +136,11 @@ export default {
         }
 
         onMounted(() => {
-            getCategory();
+            getCompany();
         });
 
         //start design
-        let addCategory =  reactive({
+        let addCompany =  reactive({
             data:{
                 name : '',
                 file : {}
@@ -151,13 +151,13 @@ export default {
             return {
                 name: {
                     minLength: minLength(3),
-                    maxLength:maxLength(70),
+                    maxLength: maxLength(70),
                     required
                 }
             }
         });
 
-        const v$ = useVuelidate(rules,addCategory.data);
+        const v$ = useVuelidate(rules,addCompany.data);
 
         let preview = (e) => {
 
@@ -165,17 +165,17 @@ export default {
             if(numberOfImage.value){
                 containerImages.innerHTML = '';
             }
-            addCategory.data.file = {};
+            addCompany.data.file = {};
 
             numberOfImage.value = e.target.files.length;
 
-            addCategory.data.file = e.target.files[0];
+            addCompany.data.file = e.target.files[0];
 
             let reader = new FileReader();
             let figure = document.createElement('figure');
             let figcap = document.createElement('figcaption');
 
-            figcap.innerText = addCategory.data.file.name;
+            figcap.innerText = addCompany.data.file.name;
             figure.appendChild(figcap);
 
             reader.onload = () => {
@@ -185,13 +185,13 @@ export default {
             }
 
             containerImages.appendChild(figure);
-            reader.readAsDataURL(addCategory.data.file);
+            reader.readAsDataURL(addCompany.data.file);
 
         };
 
         const numberOfImage = ref(0);
 
-        return {id,loading,...toRefs(addCategory),v$,preview,numberOfImage,image};
+        return {id,loading,...toRefs(addCompany),v$,preview,numberOfImage,image};
     },
     methods: {
         editSupplier(){
@@ -207,7 +207,7 @@ export default {
                 formData.append('file',this.data.file);
                 formData.append('_method','PUT');
 
-                adminApi.post(`/v1/dashboard/category/${this.id}`,formData)
+                adminApi.post(`/v1/dashboard/company/${this.id}`,formData)
                     .then((res) => {
 
                         notify({

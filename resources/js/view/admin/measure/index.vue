@@ -6,14 +6,14 @@
             <div class="page-header">
                 <div class="row align-items-center">
                     <div class="col">
-                        <h3 class="page-title">الفئات</h3>
+                        <h3 class="page-title">وحدات القياس</h3>
                         <ul class="breadcrumb">
                             <li class="breadcrumb-item">
                                 <router-link :to="{name: 'dashboard'}">
                                     الرئيسية
                                 </router-link>
                             </li>
-                            <li class="breadcrumb-item active">فئات</li>
+                            <li class="breadcrumb-item active">وحدات القياس</li>
                         </ul>
                     </div>
 
@@ -35,7 +35,7 @@
                                     <div class="col-5 row justify-content-end">
                                         <router-link
                                             v-if="permission.includes('department create')"
-                                           :to="{name: 'createCategory'}"
+                                           :to="{name: 'createMeasure'}"
                                             class="btn btn-custom btn-warning">
                                             اضافه
                                         </router-link>
@@ -47,25 +47,19 @@
                                     <thead>
                                     <tr>
                                         <th>#</th>
-                                        <th>اسم الفئه</th>
-                                        <th>الصوره</th>
-                                        <th>الحاله</th>
+                                        <th>اسم وحده القياس</th>
+                                        <th>تاريخ الانشاء</th>
+                                        <th>الحالة</th>
                                         <th>الاجراءات</th>
                                     </tr>
                                     </thead>
-                                    <tbody v-if="categories.length">
-                                    <tr v-for="(item,index) in categories"  :key="item.id">
+                                    <tbody v-if="measures.length">
+                                    <tr v-for="(item,index) in measures"  :key="item.id">
                                         <td>{{ index + 1 }}</td>
                                         <td>{{ item.name }}</td>
+                                        <td>{{ dateFormat(item.created_at) }}</td>
                                         <td>
-                                            <img
-                                                :src="'/upload/category/' + item.media.file_name"
-                                                :alt="item.name"
-                                                class="custom-img"
-                                            />
-                                        </td>
-                                        <td>
-                                            <a href="#" @click="activationCategory(item.id,item.status,index)">
+                                            <a href="#" @click="activationMeausre(item.id,item.status,index)">
                                                 <span :class="[parseInt(item.status) ? 'text-success hover': 'text-danger hover']">{{
                                                         parseInt(item.status) ? 'تفعيل' : 'ايقاف تفعيل' }}</span>
                                             </a>
@@ -73,12 +67,12 @@
                                         <td>
 
                                             <router-link
-                                                :to="{name: 'editCategory',params:{id:item.id}}"
+                                                :to="{name: 'editMeasure',params:{id:item.id}}"
                                                v-if="permission.includes('department edit')"
                                                class="btn btn-sm btn-success me-2">
                                                 <i class="far fa-edit"></i>
                                             </router-link>
-                                            <a href="#" @click="deleteCategory(item.id,index)"
+                                            <a href="#" @click="deleteMeasure(item.id,index)"
                                                 v-if="permission.includes('department delete')"
                                                data-bs-target="#staticBackdrop" class="btn btn-sm btn-danger me-2">
                                                 <i class="far fa-trash-alt"></i>
@@ -100,7 +94,7 @@
             </div>
             <!-- /Table -->
             <!-- start Pagination -->
-            <Pagination :data="categoriesPaginate" @pagination-change-page="getCategory">
+            <Pagination :data="measuresPaginate" @pagination-change-page="getMeasure">
                 <template #prev-nav>
                     <span>&lt; السابق</span>
                 </template>
@@ -124,22 +118,22 @@ export default {
     setup() {
 
         // get packages
-        let categories = ref([]);
-        let categoriesPaginate = ref({});
+        let measures = ref([]);
+        let measuresPaginate = ref({});
         let loading = ref(false);
         const search = ref('');
         let store = useStore();
 
         let permission = computed(() => store.getters['authAdmin/permission']);
 
-        let getCategory = (page = 1) => {
+        let getMeasure = (page = 1) => {
             loading.value = true;
 
-            adminApi.get(`/v1/dashboard/category?page=${page}&search=${search.value}`)
+            adminApi.get(`/v1/dashboard/measure?page=${page}&search=${search.value}`)
                 .then((res) => {
                     let l = res.data.data;
-                    categoriesPaginate.value = l.categories;
-                    categories.value = l.categories.data;
+                    measuresPaginate.value = l.measures;
+                    measures.value = l.measures.data;
                 })
                 .catch((err) => {
                     console.log(err.response.data);
@@ -150,18 +144,21 @@ export default {
         }
 
         onMounted(() => {
-            getCategory();
+            getMeasure();
         });
-
 
         watch(search, (search, prevSearch) => {
             if (search.length >= 0) {
-                getCategory();
+                getMeasure();
             }
         });
 
+        let dateFormat = (item) => {
+            return new Date(item).toDateString();
+        };
 
-        function deleteCategory(id, index) {
+
+        function deleteMeasure(id, index) {
             Swal.fire({
                 title: `هل تريد هذف هذا العنصر ؟ `,
                 text: `لن تتمكن من التراجع عن هذا`,
@@ -173,9 +170,9 @@ export default {
             }).then((result) => {
                 if (result.isConfirmed) {
 
-                    adminApi.delete(`/v1/dashboard/category/${id}`)
+                    adminApi.delete(`/v1/dashboard/measure/${id}`)
                         .then((res) => {
-                            categories.value.splice(index, index + 1);
+                            measures.value.splice(index, index + 1);
 
                             Swal.fire({
                                 icon: 'success',
@@ -195,7 +192,7 @@ export default {
             });
         }
 
-        function activationCategory(id, active,index) {
+        function activationMeausre(id, active,index) {
             Swal.fire({
                 title: `${active ? 'هل انت متاكد من ايقاف التفعيل ؟' : 'هل انت متاكد من التفعيل  ؟'} `,
                 text: `لم تتمكن من التراجع عن هذا`,
@@ -207,7 +204,7 @@ export default {
             }).then((result) => {
                 if (result.isConfirmed) {
 
-                    adminApi.get(`/v1/dashboard/activationCategory/${id}`)
+                    adminApi.get(`/v1/dashboard/activationMeausre/${id}`)
                         .then((res) => {
                             Swal.fire({
                                 icon: 'success',
@@ -215,7 +212,7 @@ export default {
                                 showConfirmButton: false,
                                 timer: 1500
                             });
-                            categories.value[index]['status'] =  active ? 0:1
+                            measures.value[index]['status'] =  active ? 0:1
                         })
                         .catch((err) => {
                             Swal.fire({
@@ -228,7 +225,7 @@ export default {
             });
         }
 
-        return {getCategory, loading,permission, search, deleteCategory, activationCategory, categoriesPaginate,categories};
+        return {dateFormat,measures, loading,permission, getMeasure, search, deleteMeasure, activationMeausre, measuresPaginate};
 
     },
     data() {
@@ -264,7 +261,4 @@ export default {
     border-radius: 7px;
 }
 
-.custom-img {
-    width: 100px;
-}
 </style>

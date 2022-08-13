@@ -6,14 +6,14 @@
             <div class="page-header">
                 <div class="row align-items-center">
                     <div class="col">
-                        <h3 class="page-title">الفئات</h3>
+                        <h3 class="page-title">الشركات</h3>
                         <ul class="breadcrumb">
                             <li class="breadcrumb-item">
                                 <router-link :to="{name: 'dashboard'}">
                                     الرئيسية
                                 </router-link>
                             </li>
-                            <li class="breadcrumb-item active">فئات</li>
+                            <li class="breadcrumb-item active">الشركات</li>
                         </ul>
                     </div>
 
@@ -35,7 +35,7 @@
                                     <div class="col-5 row justify-content-end">
                                         <router-link
                                             v-if="permission.includes('department create')"
-                                           :to="{name: 'createCategory'}"
+                                           :to="{name: 'createCompany'}"
                                             class="btn btn-custom btn-warning">
                                             اضافه
                                         </router-link>
@@ -47,25 +47,27 @@
                                     <thead>
                                     <tr>
                                         <th>#</th>
-                                        <th>اسم الفئه</th>
+                                        <th>اسم الشركه</th>
                                         <th>الصوره</th>
+                                        <th>تاريخ الانشاء</th>
                                         <th>الحاله</th>
                                         <th>الاجراءات</th>
                                     </tr>
                                     </thead>
-                                    <tbody v-if="categories.length">
-                                    <tr v-for="(item,index) in categories"  :key="item.id">
+                                    <tbody v-if="companies.length">
+                                    <tr v-for="(item,index) in companies"  :key="item.id">
                                         <td>{{ index + 1 }}</td>
                                         <td>{{ item.name }}</td>
+                                        <th>{{dateFormat(item.created_at)}}</th>
                                         <td>
                                             <img
-                                                :src="'/upload/category/' + item.media.file_name"
+                                                :src="'/upload/company/' + item.media.file_name"
                                                 :alt="item.name"
                                                 class="custom-img"
                                             />
                                         </td>
                                         <td>
-                                            <a href="#" @click="activationCategory(item.id,item.status,index)">
+                                            <a href="#" @click="activationCompany(item.id,item.status,index)">
                                                 <span :class="[parseInt(item.status) ? 'text-success hover': 'text-danger hover']">{{
                                                         parseInt(item.status) ? 'تفعيل' : 'ايقاف تفعيل' }}</span>
                                             </a>
@@ -73,12 +75,12 @@
                                         <td>
 
                                             <router-link
-                                                :to="{name: 'editCategory',params:{id:item.id}}"
+                                                :to="{name: 'editCompany',params:{id:item.id}}"
                                                v-if="permission.includes('department edit')"
                                                class="btn btn-sm btn-success me-2">
                                                 <i class="far fa-edit"></i>
                                             </router-link>
-                                            <a href="#" @click="deleteCategory(item.id,index)"
+                                            <a href="#" @click="deleteCompany(item.id,index)"
                                                 v-if="permission.includes('department delete')"
                                                data-bs-target="#staticBackdrop" class="btn btn-sm btn-danger me-2">
                                                 <i class="far fa-trash-alt"></i>
@@ -89,7 +91,7 @@
                                     </tbody>
                                     <tbody v-else>
                                         <tr>
-                                            <th class="text-center" colspan="5">لا يوجد بيانات</th>
+                                            <th class="text-center" colspan="6">لا يوجد بيانات</th>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -100,7 +102,7 @@
             </div>
             <!-- /Table -->
             <!-- start Pagination -->
-            <Pagination :data="categoriesPaginate" @pagination-change-page="getCategory">
+            <Pagination :data="companiesPaginate" @pagination-change-page="getCompany">
                 <template #prev-nav>
                     <span>&lt; السابق</span>
                 </template>
@@ -124,22 +126,22 @@ export default {
     setup() {
 
         // get packages
-        let categories = ref([]);
-        let categoriesPaginate = ref({});
+        let companies = ref([]);
+        let companiesPaginate = ref({});
         let loading = ref(false);
         const search = ref('');
         let store = useStore();
 
         let permission = computed(() => store.getters['authAdmin/permission']);
 
-        let getCategory = (page = 1) => {
+        let getCompany = (page = 1) => {
             loading.value = true;
 
-            adminApi.get(`/v1/dashboard/category?page=${page}&search=${search.value}`)
+            adminApi.get(`/v1/dashboard/company?page=${page}&search=${search.value}`)
                 .then((res) => {
                     let l = res.data.data;
-                    categoriesPaginate.value = l.categories;
-                    categories.value = l.categories.data;
+                    companiesPaginate.value = l.categories;
+                    companies.value = l.categories.data;
                 })
                 .catch((err) => {
                     console.log(err.response.data);
@@ -150,18 +152,16 @@ export default {
         }
 
         onMounted(() => {
-            getCategory();
+            getCompany();
         });
-
 
         watch(search, (search, prevSearch) => {
             if (search.length >= 0) {
-                getCategory();
+                getCompany();
             }
         });
 
-
-        function deleteCategory(id, index) {
+        function deleteCompany(id, index) {
             Swal.fire({
                 title: `هل تريد هذف هذا العنصر ؟ `,
                 text: `لن تتمكن من التراجع عن هذا`,
@@ -173,9 +173,9 @@ export default {
             }).then((result) => {
                 if (result.isConfirmed) {
 
-                    adminApi.delete(`/v1/dashboard/category/${id}`)
+                    adminApi.delete(`/v1/dashboard/company/${id}`)
                         .then((res) => {
-                            categories.value.splice(index, index + 1);
+                            companies.value.splice(index, index + 1);
 
                             Swal.fire({
                                 icon: 'success',
@@ -193,9 +193,9 @@ export default {
                         });
                 }
             });
-        }
+        };
 
-        function activationCategory(id, active,index) {
+        function activationCompany(id, active,index) {
             Swal.fire({
                 title: `${active ? 'هل انت متاكد من ايقاف التفعيل ؟' : 'هل انت متاكد من التفعيل  ؟'} `,
                 text: `لم تتمكن من التراجع عن هذا`,
@@ -207,7 +207,7 @@ export default {
             }).then((result) => {
                 if (result.isConfirmed) {
 
-                    adminApi.get(`/v1/dashboard/activationCategory/${id}`)
+                    adminApi.get(`/v1/dashboard/activationCompany/${id}`)
                         .then((res) => {
                             Swal.fire({
                                 icon: 'success',
@@ -215,7 +215,7 @@ export default {
                                 showConfirmButton: false,
                                 timer: 1500
                             });
-                            categories.value[index]['status'] =  active ? 0:1
+                            companies.value[index]['status'] =  active ? 0:1
                         })
                         .catch((err) => {
                             Swal.fire({
@@ -226,9 +226,13 @@ export default {
                         });
                 }
             });
-        }
+        };
 
-        return {getCategory, loading,permission, search, deleteCategory, activationCategory, categoriesPaginate,categories};
+        let dateFormat = (item) => {
+            return new Date(item).toDateString();
+        };
+
+        return {dateFormat,getCompany, loading,permission, search, deleteCompany, activationCompany, companiesPaginate,companies};
 
     },
     data() {

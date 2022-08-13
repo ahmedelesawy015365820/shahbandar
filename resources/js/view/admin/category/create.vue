@@ -9,10 +9,10 @@
             <div class="page-header">
                 <div class="row align-items-center">
                     <div class="col">
-                        <h3 class="page-title">الموردين</h3>
+                        <h3 class="page-title">الفئات</h3>
                         <ul class="breadcrumb">
-                            <li class="breadcrumb-item"><router-link :to="{name: 'indexSupplier'}">الموريد</router-link></li>
-                            <li class="breadcrumb-item active">اضافه مورد</li>
+                            <li class="breadcrumb-item"><router-link :to="{name: 'indexCategory'}">الفئات</router-link></li>
+                            <li class="breadcrumb-item active">اضافه فئه</li>
                         </ul>
                     </div>
                 </div>
@@ -26,7 +26,7 @@
                         <div class="card-body">
                             <div class="card-header pt-0 mb-4">
                                 <router-link
-                                    :to="{name: 'indexSupplier'}"
+                                    :to="{name: 'indexCategory'}"
                                     class="btn btn-custom btn-dark"
                                 >
                                     العوده للخلف
